@@ -5,8 +5,6 @@ import yaml
 import logging
 from . import default_settings
 
-# load actions
-from . import actions
 
 def load_default_config():
     # take all vars defined in default_config
@@ -64,9 +62,11 @@ application = web.httpserver.StaticMiddleware(application)
 def load_config_from_file(configfile):
     web.config.update(yaml.load(open(configfile)))
 
+
 def setup_logging():
     FORMAT = "%(asctime)-15s [%(levelname)s] %(message)s"
     logging.basicConfig(level=logging.INFO, format=FORMAT)
+
 
 def main():
     if "--config" in sys.argv:
@@ -74,10 +74,15 @@ def main():
         configfile = sys.argv[index+1]
         sys.argv = sys.argv[:index] + sys.argv[index+2:]
         load_config_from_file(configfile)
-    # Make sure there is no trailing slash on the base url (to avoid duplicate slashes)
-    web.config['base_url']=web.config.get('base_url').rstrip('/')
+    # Make sure there is no trailing slash on the base url
+    # (to avoid duplicate slashes)
+    web.config['base_url'] = web.config.get('base_url').rstrip('/')
 
-    print("Website configured to be at: {base}".format(base=web.config.get('base_url')))
+    print(
+        "Website configured to be at: {base}".format(
+            base=web.config.get('base_url')
+        )
+    )
     setup_logging()
     webapp.app.run()
 
