@@ -1,5 +1,5 @@
 import web
-from ..models import User, Workshop
+from ..models import User, Workshop, Organization
 from ..template import render_template
 from ..flash import flash
 from .. import account
@@ -46,12 +46,16 @@ class workshop_list:
             if w.date >= datetime.date.today()
         ]
 
+        org = Organization.find(
+            id=pending_workshops[0].org_id
+        )
         return render_template(
             "workshops/index.html",
             pending_workshops=pending_workshops,
             upcoming_workshops=upcoming_workshops,
             completed_workshops=completed_workshops,
-            hidden_workshops=hidden_workshops
+            hidden_workshops=hidden_workshops,
+            org=org
         )
 
 

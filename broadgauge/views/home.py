@@ -3,7 +3,7 @@ import datetime
 
 from .. import account
 from .. import forms
-from ..models import Workshop
+from ..models import Workshop, Organization
 from ..sendmail import sendmail_with_template
 from ..template import render_template
 
@@ -48,6 +48,9 @@ class dashboard:
         user = account.get_current_user()
         if not user:
             raise web.seeother("/")
+        org = Organization.find(
+            id=user.get_orgs()[0]
+        )
         pending_workshops = Workshop.findall(status='pending', order='date')
         pending_workshops = [
             w for w in pending_workshops
@@ -59,7 +62,8 @@ class dashboard:
         )
         return render_template("dashboard.html",
                                pending_workshops=pending_workshops,
-                               upcoming_workshops=upcoming_workshops)
+                               upcoming_workshops=upcoming_workshops,
+                               org=org)
 
 
 class contact:
