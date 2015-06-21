@@ -1,6 +1,6 @@
 import unittest
 import web
-from ..models import User, Trainer, get_db
+from broadgauge.models import User, get_db
 import os
 
 class DBTestCase(unittest.TestCase):
@@ -9,6 +9,9 @@ class DBTestCase(unittest.TestCase):
         get_db.cache.clear()
         web.config.db_parameters = dict(dbn='sqlite', db=":memory:")        
         self.load_schema()
+    
+    def tearDown(self):
+        get_db.cache.clear()
 
     def load_schema(self):
         db = get_db()
@@ -26,55 +29,35 @@ class DBTestCase(unittest.TestCase):
         return open(os.path.join(root, "schema.sql")).read()
 
 class UserTest(DBTestCase):
-    def test_new(self):
-        name, email, phone = 'User 1', 'user1@example.com', '1234567890'
-        u = User.new(name=name, email=email, phone=phone)
-        self.assertEquals(u.name, name)
-        self.assertEquals(u.email, email)
-        self.assertEquals(u.phone, phone)
-        self.assertNotEquals(u.id, None)
+    def setUp(self):
+        get_db.cache.clear()
+        self.name = 'User 1'
+        self.email = 'user1@example.com'
+        self.phone = '1234567890'
 
-    def test_find(self):
-        name, email, phone = 'User 1', 'user1@example.com', '1234567890'
-        u = User.new(name=name, email=email, phone=phone)
-        self.assertEquals(User.find(id=u.id), u)
+        #Create user default
+        self.user = User.new(name=self.name, email=self.email, phone=self.phone)
 
-    def test_update(self):
-        name, email, phone = 'User 1', 'user1@example.com', '1234567890'
-        u = User.new(name=name, email=email, phone=phone)
-        u.update(name='User 2')
-        self.assertEquals(u.name, 'User 2')
-        self.assertEquals(User.find(id=u.id).name, 'User 2')
+    def tearDown(self):
+        #Remove the user default
+        get_db().delete("users", where="id =" + str(self.user.id))
 
-class TrainerTest(DBTestCase):
-    def test_new(self):
-        name, email, phone = 'User 1', 'user1@example.com', '1234567890'
-        city = 'Bangalore'
-        u = Trainer.new(name=name, email=email, phone=phone, city=city)
-        self.assertEquals(u.name, name)
-        self.assertEquals(u.email, email)
-        self.assertEquals(u.phone, phone)
-        self.assertEquals(u.city, city)
-        self.assertNotEquals(u.id, None)
+    def test_success(self):
+        self.assertTrue(True)
 
-    def test_find(self):
-        name, email, phone = 'User 1', 'user1@example.com', '1234567890'
-        city = 'Bangalore'
+    def test_new_saves_user(self):
+        self.assertEquals(self.user.name, self.name)
+        self.assertEquals(self.user.email, self.email)
+        self.assertEquals(self.user.phone, self.phone)
+        self.assertNotEquals(self.user.id, None)
 
-        u = Trainer.new(name=name, email=email, phone=phone, city=city)
-        self.assertEquals(Trainer.find(id=u.id), u)
-        self.assertTrue(isinstance(Trainer.find(id=u.id), Trainer))
+    def test_find_returns_user(self):
+        self.assertEquals(User.find(id=self.user.id), self.user)
 
-    def test_update(self):
-        name, email, phone = 'User 1', 'user1@example.com', '1234567890'
-        city = 'Bangalore'
-        u = Trainer.new(name=name, email=email, phone=phone, city=city)
-        u.update(name='User 2', city='Pune')
-        self.assertEquals(u.name, 'User 2')
-        self.assertEquals(u.city, 'Pune')
-
-        u2 = Trainer.find(id=u.id)
-        self.assertEquals(u, u2)
+    def test_update_changes_user_and_update_on_database(self):
+        self.user.update(name='User 2')
+        self.assertEquals(self.user.name, 'User 2')
+        self.assertEquals(User.find(id=self.user.id).name, 'User 2')
 
 if __name__ == '__main__':
     unittest.main()
