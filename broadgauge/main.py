@@ -17,6 +17,7 @@ def load_default_config():
 
 def load_config_from_env():
     keys = [
+        'BASE_URL',
         'SITE_TITLE',
         'GITHUB_CLIENT_ID',
         'GITHUB_CLIENT_SECRET',
@@ -73,9 +74,10 @@ def main():
         configfile = sys.argv[index+1]
         sys.argv = sys.argv[:index] + sys.argv[index+2:]
         load_config_from_file(configfile)
+    # Make sure there is no trailing slash on the base url (to avoid duplicate slashes)
+    web.config['base_url']=web.config.get('base_url').rstrip('/')
 
-    if os.name == 'nt':
-        print "Hi Windows user, you should go to http://localhost:8080 to see the site"
+    print("Website configured to be at: {base}".format(base=web.config.get('base_url')))
     setup_logging()
     webapp.app.run()
 

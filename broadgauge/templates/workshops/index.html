@@ -17,4 +17,13 @@
         {{ workshop_list(completed_workshops) }}
     </div>
   </div>
+  {% if user and user.is_admin() %}
+  <div class="row">
+    <div class="col-md-12">
+	<h2>Hidden</h2>
+	{{ workshop_list(hidden_workshops) }}
+    </div>
+  </div>
+  {% endif %}
+
 {% endblock %}

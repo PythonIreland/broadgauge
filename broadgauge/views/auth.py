@@ -21,15 +21,7 @@ urls = (
 
 
 def get_oauth_redirect_url(provider):
-    home = web.ctx.home
-    if provider == 'google' and home == 'http://0.0.0.0:8080':
-        # google doesn't like 0.0.0.0
-        home = 'http://127.0.0.1:8080'
-    elif provider == 'facebook' and home == 'http://127.0.0.1:8080':
-        # facebook doesn't like 127.0.0.1
-        home = 'http://0.0.0.0:8080'
-
-    return "{home}/oauth/{provider}".format(home=home, provider=provider)
+    return "{home}/oauth/{provider}".format(home=web.config.get('base_url'), provider=provider)
 
 
 def get_oauth_data():
@@ -135,6 +127,7 @@ class trainer_signup:
             phone=i.phone,
             city=i.city,
             github=userdata.get('github'),
+            avatar_url=userdata.get('avatar_url'),
             is_trainer=True)
         account.set_login_cookie(user.email)
         flash("Thank you for signing up as a trainer!")
@@ -156,7 +149,7 @@ class org_signup(trainer_signup):
     def signup(self, i, userdata):
         user = User.find(email=userdata['email'])
         if not user:
-            user = User.new(name=userdata['name'], email=userdata['email'])
+            user = User.new(name=userdata['name'], email=userdata['email'], avatar_url=userdata['avatar_url'])
         org = Organization.new(name=i.name,
                                city=i.city)
         org.add_member(user, i.role)

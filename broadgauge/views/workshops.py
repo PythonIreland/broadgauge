@@ -22,10 +22,14 @@ def get_workshop(id):
     """Returns workshop by given id.
 
     If there is no workshop with that id, 404 error is raised.
+    If it is hidden and the user is not an admin, 403 error is raised.
     """
     workshop = Workshop.find(id=id)
     if not workshop:
         raise web.notfound()
+    user = account.get_current_user()
+    if workshop.is_hidden() and (not user or (user and not user.is_admin())):
+        raise web.forbidden(render_template("permission_denied.html"))
     return workshop
 
 class workshop_list:
@@ -33,12 +37,14 @@ class workshop_list:
         pending_workshops = Workshop.findall(status='pending', order='date')
         upcoming_workshops = Workshop.findall(status='confirmed', order='date')
         completed_workshops = Workshop.findall(status='completed', order='date desc')
+        hidden_workshops = Workshop.findall(status='hidden', order='date desc')
         pending_workshops = [w for w in pending_workshops if w.date >= datetime.date.today()]
 
         return render_template("workshops/index.html",
             pending_workshops=pending_workshops,
             upcoming_workshops=upcoming_workshops,
-            completed_workshops=completed_workshops)
+            completed_workshops=completed_workshops,
+            hidden_workshops=hidden_workshops)
 
 
 class workshop_view:
@@ -57,6 +63,10 @@ class workshop_view:
             return self.POST_confirm_trainer(workshop, i)
         elif i.action == "add-comment":
             return self.POST_add_comment(workshop, i)
+        elif i.action == "hide-workshop":
+            return self.POST_hide_workshop(workshop, i)
+        elif i.action == "unhide-workshop":
+            return self.POST_unhide_workshop(workshop, i)
         else:
             logger.warn("workshop_view - invalid action value: %s", i.action)
             return render_template("workshops/view.html", workshop=workshop)
@@ -110,6 +120,25 @@ class workshop_view:
             flash("Done! Your comment has been added to this workshop.")
             raise web.seeother("/workshops/{}".format(workshop.id))
 
+    def POST_hide_workshop(self, workshop, i):
+        user = account.get_current_user()
+        if user and user.is_admin():
+            workshop.hide()
+            signals.workshop_hidden.send(workshop)
+            flash("Workshop hidden.", category="warning")
+            raise web.seeother("/workshops/{}".format(workshop.id))
+        else:
+            raise web.forbidden(render_template("permission_denied.html"))
+
+    def POST_unhide_workshop(self, workshop, i):
+        user = account.get_current_user()
+        if user and user.is_admin():
+            workshop.unhide()
+            signals.workshop_unhidden.send(workshop)
+            flash("Workshop visible.", category="success")
+            raise web.seeother("/workshops/{}".format(workshop.id))
+        else:
+            raise web.forbidden(render_template("permission_denied.html"))
 
 class workshop_edit:
     def GET(self, workshop_id):

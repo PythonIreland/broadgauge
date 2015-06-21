@@ -72,6 +72,7 @@ class GitHub(OAuth2Service):
                 name=(d["name"] if "name" in d else ''),
                 email=email,
                 username=d["login"],
+                avatar_url=d["avatar_url"],
                 github=d["login"],
                 service="GitHub")
         except KeyError, e:
@@ -128,6 +129,7 @@ class Google(OAuth2Service):
             return dict(
                 name=d['name'],
                 email=d['email'],
+                avatar_url=d['picture'],
                 username=username,
                 service='Google')
         except KeyError, e:

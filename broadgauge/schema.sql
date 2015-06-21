@@ -8,6 +8,7 @@ create table users (
     bio text,
     website text,
     github text,
+    avatar_url text,
     is_admin boolean,
     is_trainer boolean,
     created timestamp default (current_timestamp at time zone 'UTC')
@@ -34,7 +35,7 @@ create table workshop (
     trainer_id integer references users,
     title text,
     description text,
-    status text default 'pending', -- one of pending, confirmed or completed
+    status text default 'pending', -- one of hidden, pending, confirmed or completed
     expected_participants integer,
     "date" date
 );
