@@ -4,6 +4,7 @@ import random
 import json
 import datetime
 
+
 @web.memoize
 def get_db():
     if 'database_url' in web.config:
@@ -50,13 +51,15 @@ class Model(web.storage):
 
     @classmethod
     def find(cls, **kw):
-        """Returns the first item matching the constraints specified as keywords.
+        """ Returns the first item matching
+        the constraints specified as keywords.
         """
         return cls.where(**kw).first()
 
     @classmethod
     def findall(cls, **kw):
-        """Returns the first item matching the constraints specified as keywords.
+        """ Returns the first item matching
+        the constraints specified as keywords.
         """
         return cls.where(**kw).list()
 
@@ -93,7 +96,9 @@ class User(Model):
         if 'username' not in kw:
             kw['username'] = cls._suggest_username(email)
 
-        id = get_db().insert("users", name=name, email=email, phone=phone, **kw)
+        id = get_db().insert(
+            "users", name=name, email=email, phone=phone, **kw
+        )
         return cls.find(id=id)
 
     @staticmethod
@@ -149,7 +154,9 @@ class Organization(Model):
         return cls.find(id=id)
 
     def add_member(self, user, role):
-        get_db().insert("organization_members", org_id=self.id, user_id=user.id, role=role)
+        get_db().insert(
+            "organization_members", org_id=self.id, user_id=user.id, role=role
+        )
 
     def get_workshops(self, status=None):
         """Returns list of workshops by this organization.
@@ -196,7 +203,8 @@ class Organization(Model):
     def get_members(self):
         result = get_db().query(
             "SELECT users.*, role FROM users" +
-            " JOIN organization_members ON organization_members.user_id=users.id" +
+            " JOIN organization_members ON" +
+            " organization_members.user_id=users.id" +
             " WHERE organization_members.org_id=$self.id", vars=locals())
 
         def make_member(row):
@@ -205,6 +213,7 @@ class Organization(Model):
             return member, role
 
         return [make_member(row) for row in result]
+
 
 class Workshop(Model):
     TABLE = "workshop"
@@ -253,30 +262,38 @@ class Workshop(Model):
         """Record that the given trainer has shown interest to conduct
         this workshop.
         """
-        get_db().insert("workshop_trainers", workshop_id=self.id, trainer_id=trainer.id)
+        get_db().insert(
+            "workshop_trainers", workshop_id=self.id, trainer_id=trainer.id
+        )
 
     def cancel_interest(self, trainer):
         """Record that the given trainer has withdrawn interest in conducting
         this workshop.
         """
-        get_db().delete("workshop_trainers",
+        get_db().delete(
+            "workshop_trainers",
             where="workshop_id=$self.id AND trainer_id=$trainer.id",
-            vars=locals())
+            vars=locals()
+        )
 
     def get_interested_trainers(self):
         db = get_db()
         rows = db.where("workshop_trainers", workshop_id=self.id)
         ids = [row.trainer_id for row in rows]
         if ids:
-            rows = db.query("SELECT * FROM users WHERE id IN $ids", vars={"ids": ids})
+            rows = db.query(
+                "SELECT * FROM users WHERE id IN $ids", vars={"ids": ids}
+            )
             return [User(row) for row in rows]
         else:
             return []
 
     def is_interested_trainer(self, user):
-        rows = get_db().where("workshop_trainers",
+        rows = get_db().where(
+            "workshop_trainers",
             workshop_id=self.id,
-            trainer_id=user.id).list()
+            trainer_id=user.id
+        ).list()
         return bool(rows)
 
     def get_comments(self):
@@ -321,6 +338,7 @@ class Workshop(Model):
         d['date'] = self.date and self.date.isoformat()
         return d
 
+
 class Comment(Model):
     TABLE = "comment"
 
@@ -329,6 +347,7 @@ class Comment(Model):
 
     def get_workshop(self):
         return Workshop.find(id=self.workshop_id)
+
 
 class Activity(Model):
     TABLE = "activity"
@@ -339,9 +358,11 @@ class Activity(Model):
 
     @classmethod
     def new(cls, type, user, info):
-        id = get_db().insert("activity",
+        id = get_db().insert(
+            "activity",
             type=type,
             user_id=user and user.id,
             user_name=user and user.name,
-            info=json.dumps(info))
+            info=json.dumps(info)
+        )
         return Activity.find(id=id)

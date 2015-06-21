@@ -32,23 +32,31 @@ def get_workshop(id):
         raise web.forbidden(render_template("permission_denied.html"))
     return workshop
 
+
 class workshop_list:
     def GET(self):
         pending_workshops = Workshop.findall(status='pending', order='date')
         upcoming_workshops = Workshop.findall(status='confirmed', order='date')
-        completed_workshops = Workshop.findall(status='completed', order='date desc')
+        completed_workshops = Workshop.findall(
+            status='completed', order='date desc'
+        )
         hidden_workshops = Workshop.findall(status='hidden', order='date desc')
-        pending_workshops = [w for w in pending_workshops if w.date >= datetime.date.today()]
+        pending_workshops = [
+            w for w in pending_workshops
+            if w.date >= datetime.date.today()
+        ]
 
         org = Organization.find(
             id=pending_workshops[0].org_id
         )
-        return render_template("workshops/index.html",
+        return render_template(
+            "workshops/index.html",
             pending_workshops=pending_workshops,
             upcoming_workshops=upcoming_workshops,
             completed_workshops=completed_workshops,
             hidden_workshops=hidden_workshops,
-            org=org)
+            org=org
+        )
 
 
 class workshop_view:
@@ -80,7 +88,9 @@ class workshop_view:
         if user and user.is_trainer():
             workshop.record_interest(user)
             signals.workshop_express_interest.send(workshop, trainer=user)
-            flash("Thank you for expressing interest to conduct this workshop.")
+            flash(
+                "Thank you for expressing interest to conduct this workshop."
+            )
             raise web.seeother("/workshops/{}".format(workshop.id))
         else:
             return render_template("workshops/view.html", workshop=workshop)
@@ -91,7 +101,10 @@ class workshop_view:
             workshop.cancel_interest(user)
             signals.workshop_withdraw_interest.send(workshop, trainer=user)
             # TODO: Improve this message
-            flash("Done! Your interest to conduct the workshop has been cancelled.")
+            flash(
+                "Done! Your interest to conduct the workshop "
+                "has been cancelled."
+            )
             raise web.seeother("/workshops/{}".format(workshop.id))
         else:
             return render_template("workshops/view.html", workshop=workshop)
@@ -103,13 +116,18 @@ class workshop_view:
             trainer = User.find(username=i.get('trainer'))
             if not trainer or not workshop.is_interested_trainer(trainer):
                 flash(
-                    message='Sorry, unable to confirm the trainer. Please try again.',
+                    message='Sorry, unable to confirm the trainer.'
+                    ' Please try again.',
                     category='error')
                 raise web.seeother("/workshops/{}".format(workshop.id))
 
             workshop.confirm_trainer(trainer)
             signals.workshop_confirmed.send(workshop, trainer=trainer)
-            flash("Done! Confirmed {} as trainer for this workshop.".format(trainer.name))
+            flash(
+                "Done! Confirmed {} as trainer for this workshop.".format(
+                    trainer.name
+                )
+            )
             raise web.seeother("/workshops/{}".format(workshop.id))
         else:
             return render_template("workshops/view.html", workshop=workshop)
@@ -143,6 +161,7 @@ class workshop_view:
             raise web.seeother("/workshops/{}".format(workshop.id))
         else:
             raise web.forbidden(render_template("permission_denied.html"))
+
 
 class workshop_edit:
     def GET(self, workshop_id):

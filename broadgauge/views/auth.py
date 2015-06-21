@@ -14,14 +14,17 @@ urls = (
     "/logout", "logout",
     "/oauth/(github|google|facebook)", "oauth_callback",
     "(/trainers/signup|/orgs/signup|/login)/reset", "signup_reset",
-    "(/trainers/signup|/orgs/signup|/login)/(github|google|facebook)", "signup_redirect",
+    "(/trainers/signup|/orgs/signup|/login)/(github|google|facebook)",
+    "signup_redirect",
     "/trainers/signup", "trainer_signup",
     "/orgs/signup", "org_signup",
 )
 
 
 def get_oauth_redirect_url(provider):
-    return "{home}/oauth/{provider}".format(home=web.config.get('base_url'), provider=provider)
+    return "{home}/oauth/{provider}".format(
+        home=web.config.get('base_url'), provider=provider
+    )
 
 
 def get_oauth_data():
@@ -149,13 +152,16 @@ class org_signup(trainer_signup):
     def signup(self, i, userdata):
         user = User.find(email=userdata['email'])
         if not user:
-            user = User.new(name=userdata['name'], email=userdata['email'], avatar_url=userdata['avatar_url'])
+            user = User.new(
+                name=userdata['name'], email=userdata['email'],
+                avatar_url=userdata['avatar_url']
+            )
         org = Organization.new(name=i.name,
                                city=i.city)
         org.add_member(user, i.role)
         account.set_login_cookie(user.email)
-        flash("Thank you for registering your organization with Python Express!")
+        flash(
+            "Thank you for registering your organization with Python Express!"
+        )
         signals.org_signup.send(org)
         raise web.seeother("/orgs/{}".format(org.id))
-
-
