@@ -7,8 +7,11 @@ from wtforms import (
     StringField, TextAreaField,
     SelectField,
     validators)
+from wtforms_components import DateRange
+from datetime import date
 
 from .models import User
+
 
 class MultiDict(web.storage):
     """wtforms expect the formdate to be a multi-dict instance with getall method.
@@ -58,7 +61,10 @@ class NewWorkshopForm(BaseForm):
     title = StringField('Title', [validators.Required()])
     description = TextAreaField('Description', [validators.Required()])
     expected_participants = IntegerField('Expected number of participants', [validators.Required()])
-    date = DateField('Preferred Date', [validators.Required()])
+    date = DateField(
+        'Preferred Date (Format YYYY-MM-DD)',
+        [validators.Required(), DateRange(min=date.today())]
+    )
 
 class AdminAddOrgForm(BaseForm):
     name = StringField('Name', [validators.Required()])
