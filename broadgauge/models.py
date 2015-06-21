@@ -131,6 +131,15 @@ class User(Model):
             " JOIN organization_members on user_id=users.id")
         return [cls(row) for row in result]
 
+    def get_orgs(self):
+        """ returns a list of org_ids this user belongs to"""
+        result = get_db().query(
+            "SELECT * FROM organization_members" +
+            " WHERE user_id=$self.id",
+            vars=locals())
+        return [org_mem.org_id for org_mem in result]
+
+
 class Organization(Model):
     TABLE = "organization"
 
