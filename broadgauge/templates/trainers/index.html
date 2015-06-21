@@ -5,7 +5,13 @@
 <ul class="list-unstyled org-list">
   {% for t in trainers %}
     <li>
-        <a href="/trainers/{{t.username}}"><img src="http://www.gravatar.com/avatar/{{t.email | md5}}?s=30&d=mm" class="img-rounded"></a>
+        <a href="/trainers/{{t.username}}">
+            {% if t.avatar_url %}
+              <img src="{{ t.avatar_url }}" class="img-rounded" height="30" width="30">
+            {% else %}
+              <img src="http://www.gravatar.com/avatar/{{t.email | md5}}?s=30&d=mm" class="img-rounded">
+            {% endif %}
+        </a>
         <strong><a href="/trainers/{{t.username}}">{{t.name}}</a></strong>, <span>{{t.city}}</span>
     </li>
   {% endfor %}

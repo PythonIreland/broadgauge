@@ -55,6 +55,15 @@ Windows
         
         psql pythonexpress < broadgauge/schema.sql
 
+* Become a user in your database
+
+        Create user in database:
+                sudo -u postgres psql
+                create role [name];
+                alter role [name] with login;
+                \q
+        Edit the default_settings.py file changing the 'user' value to your [name]
+
 * Run the app
 
         python run.py

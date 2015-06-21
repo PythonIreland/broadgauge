@@ -149,7 +149,7 @@ class org_signup(trainer_signup):
     def signup(self, i, userdata):
         user = User.find(email=userdata['email'])
         if not user:
-            user = User.new(name=userdata['name'], email=userdata['email'])
+            user = User.new(name=userdata['name'], email=userdata['email'], avatar_url=userdata['avatar_url'])
         org = Organization.new(name=i.name,
                                city=i.city)
         org.add_member(user, i.role)

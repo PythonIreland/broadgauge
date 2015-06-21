@@ -50,6 +50,14 @@ def on_workshop_confirmed(workshop, trainer):
         workshop=workshop,
         trainer=trainer)
 
+@signals.workshop_hidden.connect
+def activity_workshop_hidden(workshop):
+    record_activity('workshop-hidden', workshop.dict())
+
+@signals.workshop_unhidden.connect
+def activity_workshop_unhidden(workshop):
+    record_activity('workshop-unhidden', workshop.dict())
+
 @signals.trainer_signup.connect
 def trainer_welcome_email(trainer):
     sendmail_with_template("emails/trainers/welcome.html",
