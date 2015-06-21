@@ -3,7 +3,11 @@
 {% macro render_trainer(t) %}
   <div style="margin: 10px 0px;">
     <div style="width: 40px; float: left;">
-      <img src="http://www.gravatar.com/avatar/{{t.email | md5}}?s=40&d=mm" class="img-thumbnail">
+      {% if t.avatar_url %}
+        <img src="{{ t.avatar_url }}" class="img-thumbnail" height="40" width="40">
+      {% else %}
+        <img src="http://www.gravatar.com/avatar/{{t.email.lower() | md5}}?s=40" class="img-thumbnail">
+      {% endif %}
     </div>
     <div style="padding-left: 10px; float: left;">
       <div><a href="/trainers/{{t.username}}"><strong>{{t.name}}</strong></a></div>
@@ -78,6 +82,15 @@
   {{ workshop.title }}
   {% if org.can_update(user) %}
   <a class="small" href="/workshops/{{workshop.id}}/edit">Edit</a>
+  {% endif %}
+  {% if user and user.is_admin() %}
+    <form method="POST" action="/workshops/{{workshop.id}}">
+    {% if workshop.is_hidden() %}
+      <button type="submit" class="btn btn-warning" name="action" value="unhide-workshop">Workshop is hidden - Click to make visible</button>
+    {% else %}
+      <button type="submit" class="btn btn-warning" name="action" value="hide-workshop">Workshop is visible - Click to hide from all users</button>
+    {% endif %}
+    </form>
   {% endif %}
 </h1>
 <div class="workshop-venue">

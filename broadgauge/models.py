@@ -295,6 +295,18 @@ class Workshop(Model):
         print followers
         return list(followers)
 
+    def hide(self):
+        self.update(status='hidden')
+
+    def unhide(self):
+        newstatus = 'pending'
+        if self.get_trainers():
+            newstatus = 'confirmed'
+        self.update(status=newstatus)
+
+    def is_hidden(self):
+        return self.status == 'hidden'
+
     def dict(self):
         d = dict(self)
         d['date'] = self.date and self.date.isoformat()

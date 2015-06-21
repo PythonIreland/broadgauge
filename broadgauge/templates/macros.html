@@ -40,7 +40,13 @@
       {% if user and user.is_admin() and trainers %}
         <div style="margin: 10px 0px;">
         {% for t in trainers %}
-          <a href="/trainers/{{t.username}}" title="{{t.name}}" style="margin: 2px;"><img src="http://www.gravatar.com/avatar/{{t.email | md5}}?s=30&d=mm" class="img-rounded"></a>
+          <a href="/trainers/{{t.username}}" title="{{t.name}}" style="margin: 2px;">
+            {% if t.avatar_url %}
+              <img src="{{ t.avatar_url }}" class="img-rounded" height="30" width="30">
+            {% else %}
+              <img src="http://www.gravatar.com/avatar/{{t.email | md5}}?s=30&d=mm" class="img-rounded">
+            {% endif %}    
+          </a>
         {% endfor %}
         </div>
       {% endif %}

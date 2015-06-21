@@ -5,7 +5,13 @@
     <ul class="list-unstyled org-list">
       {% for admin in admins %}
         <li>
-            <a href="/admin/people/{{admin.id}}"><img src="http://www.gravatar.com/avatar/{{admin.email | md5}}?s=30&d=mm" class="img-rounded"></a>
+            <a href="/admin/people/{{admin.id}}">
+              {% if admin.avatar_url %}
+                <img src="{{ admin.avatar_url }}" class="img-rounded" height="30" width="30">
+              {% else %}
+                <img src="http://www.gravatar.com/avatar/{{admin.email | md5}}?s=30&d=mm" class="img-rounded">
+              {% endif %}    
+            </a>
             <strong><a href="/admin/people/{{admin.id}}">{{admin.name}}</a></strong>
         </li>
       {% endfor %}
