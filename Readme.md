@@ -1,69 +1,134 @@
-BroadGauge
-==========
+# BroadGauge
 
-Platform for managing training/workshops by connecting interested trainers and educational institutes interested in conducting trainings for their students. 
+A platform for managing training sessions and workshops to connect trainers and educational institutes interested in conducting training for their students. 
 
-This is going to be used for managing Python workshops going to be conducted across Ireland.
+This project is a fork of [Anand Chitipothu](https://github.com/anandology)'s
+ [broadgauge](https://github.com/anandology/broadgauge) project.
 
+## Requirements
 
+See [`requirements.txt`](https://github.com/PythonIreland/broadgauge/blob/master/requirements.txt) for the full set of 
+requirements.
 
-Requirements
-------------
-
-* PostgreSQL
 * Python 2.7
+* PostgreSQL
 * virtualenv
 
-How to setup
-------------
+# How to setup
 
-* Clone the repo
+The short version:
 
-        ## CHANGE TO PYTHON IRELAND git clone git@github.com:PythonIreland/broadgauge.git
-        cd broadgauge
+* Install dependencies system-wide
+* Clone the GitHub repo
+* Create the Python virtualenv
+* Install project-specific dependencies in the virtualenv
+* Configure the database
+** Create an account for use by the BroadGauge server
+** Import the database schema as that user
+* Start the BroadGauge server
 
-* Setup virtualenv and install python packages
+## Install the dependencies
 
-        virtualenv .
-        . bin/activate
-        pip install -r requirements.txt
+### Linux
 
-* Start Postgres server
+There are two stages to installing the dependencies; some you'll install system-wide and some you'll install in the 
+project's Python virtual environment. The former set of dependencies guarantee the latter set can be installed
+successfully.
 
-Linux
-        Started automatically. No need to worry.
+Using your package manager, install the following dependencies system-wide:
 
-Mac
+    python
+    python-dev
+    postgresql
+    postgresql-server-dev-9.3
 
-        To launch start postgresql at login:
-        ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
+For example, on Ubuntu or any Debian-derivative:
 
-        Then to load postgresql now:
-        launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
-        Or, if you don't want/need launchctl, you can just run:
-        postgres -D /usr/local/var/postgres
+    sudo apt-get install python python-dev postgresql postgresql-server-dev-9.3
 
+## Clone the broadgauge GitHub repository
 
-Windows
-        http://www.postgresql.org/docs/9.3/static/app-pg-ctl.html
+Let's say you're going to clone this GitHub repository into `/home/me/src` and run the Broadgauge server as user `me`.
 
-* Create a database
+    cd /home/me/src
+    git clone git://github.com/PythonIreland/broadgauge.git
 
-        createdb pythonexpress
+## Setup the virtualenv in the project directory
+    
+    cd broadgauge
+    virtualenv -p $(which python2) .
+    . bin/activate
+    
+## Install the project-specific dependencies in the virtualenv
 
-* Add schema
-        
-        psql pythonexpress < broadgauge/schema.sql
+    pip install -r requirements.txt
 
-* Become a user in your database
+If `pip install` fails, it'll be because you're missing a system-wide dependency.
 
-        Create user in database:
-                sudo -u postgres psql
-                create role [name];
-                alter role [name] with login;
-                \q
-        Edit the default_settings.py file changing the 'user' value to your [name]
+## Start the Postgres database server
 
-* Run the app
+### Linux
 
-        python run.py
+The database is started automatically at installation time, running under the `postgres` user account.
+
+### Mac
+
+To start postgresql at login:
+
+    ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
+
+Then to load postgresql now:
+
+    launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
+
+Or, if you don't want/need launchctl, you can just run:
+
+    postgres -D /usr/local/var/postgres
+
+### Windows
+
+See http://www.postgresql.org/docs/9.3/static/app-pg-ctl.html
+
+## Configure the database
+
+### Create a database
+
+The database login credentials used by Broadgauge can be found in `broadgauge/default_settings.py`. Make a note of these.
+
+Switch to the `postgres` user account:
+
+    sudo -i -u postgres
+
+Create the database:
+
+    createdb pythonexpress
+
+### Create the database user account
+
+    createuser -P gerry
+
+The database user's default password is `myname1`. You'll be prompted to provide a password as you create the database user.
+
+### Add schema
+
+Switch to the `postgres` user account:
+
+    sudo -i -u postgres
+
+Check that the `postgres` user has at least read-only access to the schema file in the home folder of user `me`:
+
+    cat /home/me/src/broadgauge/broadgauge/schema.sql
+    
+If you see the contents of the file, you're good to go. Otherwise copy the file to /tmp.
+
+Import the schema as database user `gerry`:
+
+    psql -d pythonexpress -U gerry < /home/me/src/broadgauge/schema.sql
+
+## Start the BroadGauge server
+
+    python run.py
+
+Point your browser at http://localhost:8100/
+
+You're up and running! Keep an eye on the terminal in which you started the Broadgauge server to check for errors.
