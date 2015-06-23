@@ -23,17 +23,16 @@ The short version:
 * Create the Python virtualenv
 * Install project-specific dependencies in the virtualenv
 * Configure the database
-** Create an account for use by the BroadGauge server
-** Import the database schema as that user
+  * Create a new database
+  * Create an account for use by the BroadGauge server
+  * Import the database schema as that user
 * Start the BroadGauge server
 
 ## Install the dependencies
 
 ### Linux
 
-There are two stages to installing the dependencies; some you'll install system-wide and some you'll install in the 
-project's Python virtual environment. The former set of dependencies guarantee the latter set can be installed
-successfully.
+There are two stages to installing the dependencies; some you'll install system-wide and some you'll install in the project's Python virtual environment. The former set of dependencies guarantee the latter set can be installed successfully.
 
 Using your package manager, install the following dependencies system-wide:
 
