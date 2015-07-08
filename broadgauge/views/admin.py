@@ -17,11 +17,13 @@ urls = (
     "/admin/activity", "admin_activity",
 )
 
+
 def has_admins():
     """Returns True if there is at least one admin defined.
     """
     admins = User.findall(is_admin=True)
     return bool(admins)
+
 
 def admin_required(f):
     def is_current_user_admin():
@@ -45,6 +47,7 @@ def admin_required(f):
             return render_template("permission_denied.html")
     return g
 
+
 class admin:
     @admin_required
     def GET(self):
@@ -61,12 +64,15 @@ class admin:
                 flash('Succefully marked {} as admin'.format(i.email))
                 raise web.seeother("/admin")
             else:
-                admins = User.findall(is_admin=True)                
-                return render_template("admin/index.html", 
-                        admins=admins, 
-                        error_add_admin="Not a valid user.")
+                admins = User.findall(is_admin=True)
+                return render_template(
+                    "admin/index.html",
+                    admins=admins,
+                    error_add_admin="Not a valid user."
+                )
         else:
             return self.GET()
+
 
 class admin_orgs:
     @admin_required
@@ -84,6 +90,7 @@ class admin_orgs:
         flash("Successfully created new organization.")
         raise web.seeother("/orgs/{}".format(org.id))
 
+
 class admin_people:
     @admin_required
     def GET(self):
@@ -97,11 +104,17 @@ class admin_people:
         form = forms.AdminAddPersonForm(i)
         if not form.validate():
             people = User.findall(order='id desc')
-            return render_template("admin/people.html", form=form, people=people)
+            return render_template(
+                "admin/people.html", form=form, people=people
+            )
         else:
-            User.new(name=i.name, email=i.email, phone=i.phone, city=i.city, is_trainer=form.trainer.data)
+            User.new(
+                name=i.name, email=i.email, phone=i.phone,
+                city=i.city, is_trainer=form.trainer.data
+            )
             flash("Created new user successfully.")
             raise web.seeother("/admin/people")
+
 
 class admin_sendmail:
     @admin_required
@@ -131,7 +144,10 @@ class admin_sendmail:
         for u in users:
             message_html = markdown.markdown(message)
             message_html = message_html.replace('{{name}}', u.name)
-            sendmail(to_address=u.email, subject=subject, message_html=message_html)
+            sendmail(
+                to_address=u.email, subject=subject, message_html=message_html
+            )
+
 
 class admin_activity:
     def GET(self):
