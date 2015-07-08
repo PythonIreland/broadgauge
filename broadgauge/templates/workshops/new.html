@@ -7,7 +7,7 @@
   <div class="col-md-6 col-sm-12">
     <form role="form" method="POST">
       {{ render_field(form.title, help="E.g. Introduction to Python programming") }}
-      {{ render_field(form.description, help="Please provide details about duration, requirements, level of participants etc.") }}
+      {{ render_field(form.description, help="Please provide details about duration, requirements, level of participants etc. Can use <a href=\"https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet\" target=\"_blank\">Markdown</a> formatting.") }}
       {{ render_field(form.expected_participants) }}
       {{ render_field(form.date, type="date", help="Provide date in format YYYY-MM-DD", placeholder="YYYY-MM-DD") }}
 

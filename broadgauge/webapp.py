@@ -1,12 +1,13 @@
 import web
 from . import account
 from .flash import flash_processor, get_flashed_messages
-from .models import  Workshop
+from .models import Workshop
 from .oauth import get_oauth_services
 from .template import render_template, context_processor
 # web.config.debug = False
 
 urls = ()
+
 
 def add_urls(module):
     global urls
@@ -15,6 +16,7 @@ def add_urls(module):
         classname = module.__name__ + "." + classname
         module_urls.extend([path, classname])
     urls = urls + tuple(module_urls)
+
 
 def load_all_views():
     from .views import admin
@@ -41,6 +43,7 @@ app.add_processor(flash_processor)
 app.notfound = lambda: web.notfound(render_template("404.html"))
 app.internalerror = lambda: web.internalerror(render_template("500.html"))
 
+
 @context_processor
 def inject_user():
     user = account.get_current_user()
@@ -51,6 +54,10 @@ def inject_user():
         'get_flashed_messages': get_flashed_messages,
         'get_oauth_services': get_oauth_services,
         'get_config': web.config.get,
-        'get_pending_workshops': lambda: Workshop.findall(status='pending', order='date'),
-        'get_confirmed_workshops': lambda: Workshop.findall(status='confirmed', order='date'),
+        'get_pending_workshops': lambda: Workshop.findall(
+            status='pending', order='date'
+        ),
+        'get_confirmed_workshops': lambda: Workshop.findall(
+            status='confirmed', order='date'
+        ),
     }

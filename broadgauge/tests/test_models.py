@@ -3,13 +3,14 @@ import web
 from broadgauge.models import User, get_db
 import os
 
+
 class DBTestCase(unittest.TestCase):
     def setUp(self):
         # clear the memoize cache
         get_db.cache.clear()
-        web.config.db_parameters = dict(dbn='sqlite', db=":memory:")        
+        web.config.db_parameters = dict(dbn='sqlite', db=":memory:")
         self.load_schema()
-    
+
     def tearDown(self):
         get_db.cache.clear()
 
@@ -18,6 +19,7 @@ class DBTestCase(unittest.TestCase):
         sql = self.read_schema()
         # what is called seial in postgres is called integer in sqlite
         sql = sql.replace("serial", "integer")
+        sql = sql.replace("default (current_timestamp at time zone 'UTC')", "")
 
         # sqlite can execute only one statement in a query
         for part in sql.split(";"):
@@ -28,9 +30,12 @@ class DBTestCase(unittest.TestCase):
         root = dirname(dirname(__file__))
         return open(os.path.join(root, "schema.sql")).read()
 
+
 class UserTest(DBTestCase):
     def setUp(self):
-        get_db.cache.clear()
+        web.config.db_parameters = dict(dbn='sqlite', db=":memory:")
+        self.load_schema()
+
         self.name = 'User 1'
         self.email = 'user1@example.com'
         self.phone = '1234567890'
@@ -39,11 +44,7 @@ class UserTest(DBTestCase):
         self.user = User.new(name=self.name, email=self.email, phone=self.phone)
 
     def tearDown(self):
-        #Remove the user default
-        get_db().delete("users", where="id =" + str(self.user.id))
-
-    def test_success(self):
-        self.assertTrue(True)
+        get_db.cache.clear()
 
     def test_new_saves_user(self):
         self.assertEquals(self.user.name, self.name)

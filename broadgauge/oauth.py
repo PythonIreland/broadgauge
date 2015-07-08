@@ -16,6 +16,7 @@ def oauth_service(service, redirect_uri):
     elif service == 'facebook':
         return Facebook(redirect_uri)
 
+
 def get_oauth_services():
     """Returns an iterator over the available oauth services.
 
@@ -31,17 +32,20 @@ def get_oauth_services():
     if 'facebook_client_id' in web.config:
         yield web.storage(name='facebook', title='Facebook')
 
+
 class GitHub(OAuth2Service):
     """GitHub OAuth integration.
     """
     def __init__(self, redirect_uri):
-        OAuth2Service.__init__(self, 
+        OAuth2Service.__init__(
+            self,
             client_id=web.config.github_client_id,
             client_secret=web.config.github_client_secret,
             name='github',
             authorize_url='https://github.com/login/oauth/authorize',
             access_token_url='https://github.com/login/oauth/access_token',
-            base_url='https://api.github.com/')
+            base_url='https://api.github.com/'
+        )
         self.redirect_uri = redirect_uri
 
     def get_authorize_url(self, **params):
@@ -66,7 +70,11 @@ class GitHub(OAuth2Service):
             d = session.get('user').json()
             email = self.get_verified_email(session)
             if not email:
-                logger.error("No verified email found for this user {}".format(d['login']))
+                logger.error(
+                    "No verified email found for this user {}".format(
+                        d['login']
+                    )
+                )
                 return
             return dict(
                 name=(d["name"] if "name" in d else ''),
@@ -92,13 +100,15 @@ class Google(OAuth2Service):
     """Google OAuth integration.
     """
     def __init__(self, redirect_uri):
-        OAuth2Service.__init__(self,
+        OAuth2Service.__init__(
+            self,
             client_id=web.config.google_client_id,
             client_secret=web.config.google_client_secret,
             name='google',
             authorize_url='https://accounts.google.com/o/oauth2/auth',
             access_token_url='https://accounts.google.com/o/oauth2/token',
-            base_url='https://www.googleapis.com/oauth2/v1/')
+            base_url='https://www.googleapis.com/oauth2/v1/'
+        )
         self.redirect_uri = redirect_uri
 
     def get_authorize_url(self, **params):
@@ -136,17 +146,20 @@ class Google(OAuth2Service):
             logger.error("failed to get user data from google. Error: %s",
                          str(e), exc_info=True)
 
+
 class Facebook(OAuth2Service):
     """Facebook OAuth integration.
     """
     def __init__(self, redirect_uri):
-        OAuth2Service.__init__(self,
+        OAuth2Service.__init__(
+            self,
             client_id=web.config.facebook_client_id,
             client_secret=web.config.facebook_client_secret,
             name='facebook',
             authorize_url='https://graph.facebook.com/oauth/authorize',
             access_token_url='https://graph.facebook.com/oauth/access_token',
-            base_url='https://graph.facebook.com/')
+            base_url='https://graph.facebook.com/'
+        )
         self.redirect_uri = redirect_uri
 
     def get_authorize_url(self, **params):
@@ -169,7 +182,8 @@ class Facebook(OAuth2Service):
         """
         try:
             session = self.get_auth_session(
-                    data={'code': code, 'redirect_uri': self.redirect_uri})
+                data={'code': code, 'redirect_uri': self.redirect_uri}
+            )
             d = session.get('me').json()
             # suggest basename of the email as username
             username = d['email'].split("@")[0]

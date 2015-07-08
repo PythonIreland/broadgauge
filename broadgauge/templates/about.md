@@ -12,12 +12,12 @@ What should you do?
 Sign up as a trainer on the Python Express website and check the list of colleges that are willing to organize workshops. If you find any of them to be suitable for you to go and teach at, Express Interest in that particular college. Once you are accepted, you will be notified and things can be taken forward from there.
 
 Sign up as a trainer now:
-[/trainers/signup](http://www.pythonexpress.in/trainers/signup)
+[/trainers/signup](/trainers/signup)
 
 If you are interested in organizing a Python workshop, sign up as an organization/institution on the Python Express website. The trainers who have already signed up will be able to see your institution. If they are interested, they will Express Interest in your institution. Once that happens, you will be able to accept them and take it forward.
 
 Register an organization now:
-[/orgs/signup](http://www.pythonexpress.in/orgs/signup)
+[/orgs/signup](/orgs/signup)
 
 Spread the word and let us spread the love of Python far and wide.
 
